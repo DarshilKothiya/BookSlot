@@ -5,6 +5,7 @@ import '../providers/auth_provider.dart';
 import '../providers/booking_provider.dart';
 import '../models/schedule.dart';
 import '../models/booking.dart';
+import '../utils/minimal_theme.dart';
 import 'schedule_detail_screen.dart';
 import 'my_bookings_screen.dart';
 import 'profile_screen.dart';
@@ -25,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final bookingProvider = Provider.of<BookingProvider>(context);
 
     return Scaffold(
+      backgroundColor: MinimalTheme.background,
       appBar: AppBar(
         title: const Text('BookSlot'),
         actions: [
@@ -114,9 +116,9 @@ class _HomeScreenState extends State<HomeScreen> {
       Provider.of<AuthProvider>(context, listen: false).currentUser!.id,
     ).any((booking) => booking.scheduleId == schedule.id);
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      elevation: 4,
+      decoration: MinimalTheme.getCardDecoration(),
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -126,6 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         },
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -138,16 +141,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       schedule.title,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
+                        color: MinimalTheme.primaryAccent,
                       ),
                     ),
                   ),
                   if (isBooked)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: MinimalTheme.getBadgeDecoration(MinimalTheme.activeBadge),
                       child: const Text(
                         'Booked',
                         style: TextStyle(
@@ -159,11 +160,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     )
                   else if (!schedule.isAvailable)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: MinimalTheme.getBadgeDecoration(MinimalTheme.inactiveBadge),
                       child: const Text(
                         'Full',
                         style: TextStyle(
@@ -178,43 +176,45 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 8),
               Text(
                 schedule.description,
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: MinimalTheme.subtext,
+                ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
+                  Icon(Icons.calendar_today, size: 16, color: MinimalTheme.subtext),
                   const SizedBox(width: 4),
                   Text(
                     DateFormat('MMM dd, yyyy').format(schedule.date),
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: TextStyle(color: MinimalTheme.subtext),
                   ),
                   const SizedBox(width: 16),
-                  Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
+                  Icon(Icons.access_time, size: 16, color: MinimalTheme.subtext),
                   const SizedBox(width: 4),
                   Text(
                     '${schedule.startTime.hour.toString().padLeft(2, '0')}:${schedule.startTime.minute.toString().padLeft(2, '0')} - ${schedule.endTime.hour.toString().padLeft(2, '0')}:${schedule.endTime.minute.toString().padLeft(2, '0')}',
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: TextStyle(color: MinimalTheme.subtext),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
+                  Icon(Icons.location_on, size: 16, color: MinimalTheme.subtext),
                   const SizedBox(width: 4),
                   Text(
                     schedule.location,
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: TextStyle(color: MinimalTheme.subtext),
                   ),
                   const Spacer(),
-                  Icon(Icons.people, size: 16, color: Colors.grey[600]),
+                  Icon(Icons.people, size: 16, color: MinimalTheme.subtext),
                   const SizedBox(width: 4),
                   Text(
                     '${schedule.currentParticipants}/${schedule.maxParticipants}',
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: TextStyle(color: MinimalTheme.subtext),
                   ),
                 ],
               ),
@@ -263,9 +263,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBookingCard(Booking booking, Schedule schedule, BookingProvider bookingProvider) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      elevation: 4,
+      decoration: MinimalTheme.getCardDecoration(),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -275,46 +275,48 @@ class _HomeScreenState extends State<HomeScreen> {
               schedule.title,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
+                color: MinimalTheme.primaryAccent,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               schedule.description,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: MinimalTheme.subtext,
+              ),
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
+                Icon(Icons.calendar_today, size: 16, color: MinimalTheme.subtext),
                 const SizedBox(width: 4),
                 Text(
                   DateFormat('MMM dd, yyyy').format(schedule.date),
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(color: MinimalTheme.subtext),
                 ),
                 const SizedBox(width: 16),
-                Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
+                Icon(Icons.access_time, size: 16, color: MinimalTheme.subtext),
                 const SizedBox(width: 4),
                 Text(
                   '${schedule.startTime.hour.toString().padLeft(2, '0')}:${schedule.startTime.minute.toString().padLeft(2, '0')} - ${schedule.endTime.hour.toString().padLeft(2, '0')}:${schedule.endTime.minute.toString().padLeft(2, '0')}',
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(color: MinimalTheme.subtext),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Row(
               children: [
-                Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
+                Icon(Icons.location_on, size: 16, color: MinimalTheme.subtext),
                 const SizedBox(width: 4),
                 Text(
                   schedule.location,
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(color: MinimalTheme.subtext),
                 ),
                 const Spacer(),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.circular(12),
+                  decoration: MinimalTheme.getBadgeDecoration(
+                    booking.status == 'confirmed' ? MinimalTheme.activeBadge : MinimalTheme.inactiveBadge,
                   ),
                   child: Text(
                     booking.status.toUpperCase(),
@@ -340,20 +342,36 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       );
                     },
-                    child: const Text('View Details'),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: MinimalTheme.border),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                    child: const Text(
+                      'View Details',
+                      style: TextStyle(fontSize: 12),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: ElevatedButton(
+                  child: OutlinedButton(
                     onPressed: () {
                       _showCancelBookingDialog(context, booking, bookingProvider);
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: MinimalTheme.inactiveBadge),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                     ),
-                    child: const Text('Cancel Booking'),
+                    child: Text(
+                      'Cancel Booking',
+                      style: TextStyle(color: MinimalTheme.inactiveBadge, fontSize: 12),
+                    ),
                   ),
                 ),
               ],
@@ -401,23 +419,44 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        backgroundColor: MinimalTheme.cardBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Text(
+          'Logout',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            color: MinimalTheme.primaryAccent,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to logout?',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: MinimalTheme.subtext,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              authProvider.logout();
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: MinimalTheme.subtext),
             ),
-            child: const Text('Logout'),
+          ),
+          Container(
+            decoration: MinimalTheme.getBadgeDecoration(MinimalTheme.inactiveBadge),
+            child: ElevatedButton(
+              onPressed: () {
+                authProvider.logout();
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Logout'),
+            ),
           ),
         ],
       ),

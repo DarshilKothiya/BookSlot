@@ -7,6 +7,7 @@ import '../models/schedule.dart';
 import '../models/booking.dart';
 import '../models/user.dart';
 import '../services/firebase_service.dart';
+import '../utils/minimal_theme.dart';
 import 'add_edit_schedule_screen.dart';
 import 'manage_users_screen.dart';
 import 'profile_screen.dart';
@@ -27,6 +28,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     final bookingProvider = Provider.of<BookingProvider>(context);
 
     return Scaffold(
+      backgroundColor: MinimalTheme.background,
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
         actions: [
@@ -98,6 +100,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   ),
                 );
               },
+              backgroundColor: MinimalTheme.secondaryAccent,
+              foregroundColor: Colors.white,
               child: const Icon(Icons.add),
             )
           : null,
@@ -111,14 +115,22 @@ class _AdminDashboardState extends State<AdminDashboard> {
     final confirmedBookings = bookingProvider.bookings.where((b) => b.status == 'confirmed').length;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Dashboard Overview',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
               fontWeight: FontWeight.bold,
+              color: MinimalTheme.primaryAccent,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Real-time statistics and insights',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: MinimalTheme.subtext,
             ),
           ),
           const SizedBox(height: 24),
@@ -127,37 +139,53 @@ class _AdminDashboardState extends State<AdminDashboard> {
             children: [
               Row(
                 children: [
-                  Expanded(child: _buildStatCard('Total Schedules', totalSchedules.toString(), Icons.calendar_today, Colors.blue)),
+                  Expanded(child: _buildMinimalStatCard('Total Schedules', totalSchedules.toString(), Icons.calendar_today, MinimalTheme.secondaryAccent)),
                   const SizedBox(width: 16),
-                  Expanded(child: _buildStatCard('Active Schedules', activeSchedules.toString(), Icons.check_circle, Colors.green)),
+                  Expanded(child: _buildMinimalStatCard('Active Schedules', activeSchedules.toString(), Icons.check_circle, MinimalTheme.activeBadge)),
                 ],
               ),
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Expanded(child: _buildStatCard('Total Bookings', totalBookings.toString(), Icons.book, Colors.orange)),
+                  Expanded(child: _buildMinimalStatCard('Total Bookings', totalBookings.toString(), Icons.book, MinimalTheme.primaryAccent)),
                   const SizedBox(width: 16),
-                  Expanded(child: _buildStatCard('Confirmed Bookings', confirmedBookings.toString(), Icons.verified, Colors.purple)),
+                  Expanded(child: _buildMinimalStatCard('Confirmed Bookings', confirmedBookings.toString(), Icons.verified, MinimalTheme.secondaryAccent)),
                 ],
               ),
             ],
           ),
           
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           
           Text(
             'Recent Bookings',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
+              color: MinimalTheme.primaryAccent,
             ),
           ),
           const SizedBox(height: 16),
           
           if (bookingProvider.bookings.isEmpty)
-            const Card(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Text('No bookings yet'),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(32),
+              decoration: MinimalTheme.getCardDecoration(),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.book,
+                    size: 48,
+                    color: MinimalTheme.subtext.withOpacity(0.5),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No bookings yet',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: MinimalTheme.subtext,
+                    ),
+                  ),
+                ],
               ),
             )
           else
@@ -171,10 +199,118 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   (s) => s.id == booking.scheduleId,
                   orElse: () => bookingProvider.schedules.first,
                 );
-                return _buildRecentBookingCard(booking, schedule);
+                return _buildMinimalRecentBookingCard(booking, schedule);
               },
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMinimalStatCard(String title, String value, IconData icon, Color color) {
+    return Container(
+      constraints: const BoxConstraints(
+        minHeight: 100,
+        maxHeight: 140,
+      ),
+      decoration: MinimalTheme.getCardDecoration(),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, size: 20, color: color),
+            ),
+            const SizedBox(height: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  value,
+                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                    fontSize: 24,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: MinimalTheme.subtext,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMinimalRecentBookingCard(booking, Schedule schedule) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: MinimalTheme.getCardDecoration(),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: MinimalTheme.secondaryAccent.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(Icons.book, color: MinimalTheme.secondaryAccent, size: 20),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    schedule.title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: MinimalTheme.primaryAccent,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'User ID: ${booking.userId} • ${DateFormat('MMM dd, yyyy').format(booking.bookingTime)}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: MinimalTheme.subtext,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: MinimalTheme.getBadgeDecoration(
+                booking.status == 'confirmed' ? MinimalTheme.activeBadge : MinimalTheme.inactiveBadge,
+              ),
+              child: Text(
+                booking.status.toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -283,9 +419,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget _buildScheduleManagementCard(Schedule schedule, BookingProvider bookingProvider) {
     final bookings = bookingProvider.getScheduleBookings(schedule.id);
     
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      elevation: 4,
+      decoration: MinimalTheme.getCardDecoration(),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -298,6 +434,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     schedule.title,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
+                      color: MinimalTheme.primaryAccent,
                     ),
                   ),
                 ),
@@ -342,50 +479,51 @@ class _AdminDashboardState extends State<AdminDashboard> {
             const SizedBox(height: 8),
             Text(
               schedule.description,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: MinimalTheme.subtext,
+              ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
+                Icon(Icons.calendar_today, size: 16, color: MinimalTheme.subtext),
                 const SizedBox(width: 4),
                 Text(
                   DateFormat('MMM dd, yyyy').format(schedule.date),
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(color: MinimalTheme.subtext),
                 ),
                 const SizedBox(width: 16),
-                Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
+                Icon(Icons.access_time, size: 16, color: MinimalTheme.subtext),
                 const SizedBox(width: 4),
                 Text(
                   '${schedule.startTime.hour.toString().padLeft(2, '0')}:${schedule.startTime.minute.toString().padLeft(2, '0')} - ${schedule.endTime.hour.toString().padLeft(2, '0')}:${schedule.endTime.minute.toString().padLeft(2, '0')}',
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(color: MinimalTheme.subtext),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Row(
               children: [
-                Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
+                Icon(Icons.location_on, size: 16, color: MinimalTheme.subtext),
                 const SizedBox(width: 4),
                 Text(
                   schedule.location,
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(color: MinimalTheme.subtext),
                 ),
                 const Spacer(),
-                Icon(Icons.people, size: 16, color: Colors.grey[600]),
+                Icon(Icons.people, size: 16, color: MinimalTheme.subtext),
                 const SizedBox(width: 4),
                 Text(
                   '${schedule.currentParticipants}/${schedule.maxParticipants}',
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(color: MinimalTheme.subtext),
                 ),
                 const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: schedule.isActive ? Colors.green : Colors.red,
-                    borderRadius: BorderRadius.circular(12),
+                  decoration: MinimalTheme.getBadgeDecoration(
+                    schedule.isActive ? MinimalTheme.activeBadge : MinimalTheme.inactiveBadge,
                   ),
                   child: Text(
                     schedule.isActive ? 'Active' : 'Inactive',
@@ -406,7 +544,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     onPressed: () {
                       _showBookingsDialog(context, schedule, bookings);
                     },
-                    child: Text('View Bookings (${bookings.length})'),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: MinimalTheme.border),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                    child: Text(
+                      'View Bookings (${bookings.length})',
+                      style: const TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -420,7 +569,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         ),
                       );
                     },
-                    child: const Text('Edit'),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: MinimalTheme.border),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                    child: const Text(
+                      'Edit',
+                      style: TextStyle(fontSize: 12),
+                    ),
                   ),
                 ),
               ],
@@ -439,23 +598,44 @@ class _AdminDashboardState extends State<AdminDashboard> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        backgroundColor: MinimalTheme.cardBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Text(
+          'Logout',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            color: MinimalTheme.primaryAccent,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to logout?',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: MinimalTheme.subtext,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              authProvider.logout();
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: MinimalTheme.subtext),
             ),
-            child: const Text('Logout'),
+          ),
+          Container(
+            decoration: MinimalTheme.getBadgeDecoration(MinimalTheme.inactiveBadge),
+            child: ElevatedButton(
+              onPressed: () {
+                authProvider.logout();
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Logout'),
+            ),
           ),
         ],
       ),
