@@ -123,37 +123,22 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ),
           const SizedBox(height: 24),
           
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: 1.5,
+          Column(
             children: [
-              _buildStatCard(
-                'Total Schedules',
-                totalSchedules.toString(),
-                Icons.calendar_today,
-                Colors.blue,
+              Row(
+                children: [
+                  Expanded(child: _buildStatCard('Total Schedules', totalSchedules.toString(), Icons.calendar_today, Colors.blue)),
+                  const SizedBox(width: 16),
+                  Expanded(child: _buildStatCard('Active Schedules', activeSchedules.toString(), Icons.check_circle, Colors.green)),
+                ],
               ),
-              _buildStatCard(
-                'Active Schedules',
-                activeSchedules.toString(),
-                Icons.check_circle,
-                Colors.green,
-              ),
-              _buildStatCard(
-                'Total Bookings',
-                totalBookings.toString(),
-                Icons.book,
-                Colors.orange,
-              ),
-              _buildStatCard(
-                'Confirmed Bookings',
-                confirmedBookings.toString(),
-                Icons.verified,
-                Colors.purple,
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(child: _buildStatCard('Total Bookings', totalBookings.toString(), Icons.book, Colors.orange)),
+                  const SizedBox(width: 16),
+                  Expanded(child: _buildStatCard('Confirmed Bookings', confirmedBookings.toString(), Icons.verified, Colors.purple)),
+                ],
               ),
             ],
           ),
@@ -197,27 +182,35 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget _buildStatCard(String title, String value, IconData icon, Color color) {
     return Card(
       elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 32, color: color),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: color,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minHeight: 100,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 24, color: color),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.bodySmall,
-              textAlign: TextAlign.center,
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.bodySmall,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );
