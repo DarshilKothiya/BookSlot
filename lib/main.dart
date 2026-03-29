@@ -8,6 +8,7 @@ import 'screens/home_screen.dart';
 import 'screens/admin_dashboard.dart';
 import 'providers/auth_provider.dart';
 import 'providers/booking_provider.dart';
+import 'providers/notification_provider.dart';
 import 'models/user.dart';
 import 'utils/minimal_theme.dart';
 
@@ -31,7 +32,11 @@ class BookSlotApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => BookingProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProxyProvider<NotificationProvider, BookingProvider>(
+          create: (context) => BookingProvider(notificationProvider: Provider.of<NotificationProvider>(context, listen: false)),
+          update: (context, notificationProvider, bookingProvider) => bookingProvider ?? BookingProvider(notificationProvider: notificationProvider),
+        ),
       ],
       child: MaterialApp(
         title: 'BookSlot',

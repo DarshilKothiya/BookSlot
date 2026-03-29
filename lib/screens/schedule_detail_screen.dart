@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../models/schedule.dart';
 import '../providers/auth_provider.dart';
 import '../providers/booking_provider.dart';
+import 'map_location_picker_screen.dart';
 
 class ScheduleDetailScreen extends StatefulWidget {
   final Schedule schedule;
@@ -89,6 +92,83 @@ class _ScheduleDetailScreenState extends State<ScheduleDetailScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 24),
+            
+            // Map Display
+            if (widget.schedule.latitude != null && widget.schedule.longitude != null)
+              Card(
+                elevation: 4,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.map, color: Colors.blue),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Location',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Spacer(),
+                          TextButton(
+                            onPressed: _openMapViewer,
+                            child: const Text('View Full Map'),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      height: 200,
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: FlutterMap(
+                          options: MapOptions(
+                            initialCenter: LatLng(
+                              widget.schedule.latitude!,
+                              widget.schedule.longitude!,
+                            ),
+                            initialZoom: 15,
+                          ),
+                          children: [
+                            TileLayer(
+                              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                              userAgentPackageName: 'com.example.bookslot',
+                            ),
+                            MarkerLayer(
+                              markers: [
+                                Marker(
+                                  point: LatLng(
+                                    widget.schedule.latitude!,
+                                    widget.schedule.longitude!,
+                                  ),
+                                  width: 40,
+                                  height: 40,
+                                  child: const Icon(
+                                    Icons.location_on,
+                                    color: Colors.red,
+                                    size: 40,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            
             const SizedBox(height: 24),
             
             if (!isBooked && widget.schedule.isAvailable) ...[
@@ -290,5 +370,17 @@ class _ScheduleDetailScreenState extends State<ScheduleDetailScreen> {
       );
       bookingProvider.clearError();
     }
+  }
+
+  void _openMapViewer() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapLocationPickerScreen(
+          initialLatitude: widget.schedule.latitude,
+          initialLongitude: widget.schedule.longitude,
+        ),
+      ),
+    );
   }
 }

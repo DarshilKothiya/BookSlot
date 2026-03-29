@@ -6,19 +6,22 @@ import '../models/schedule.dart';
 import '../models/booking.dart';
 import '../models/user.dart';
 import '../services/firebase_service.dart';
+import 'notification_provider.dart';
 
 class BookingProvider extends ChangeNotifier {
   List<Schedule> _schedules = [];
   List<Booking> _bookings = [];
   bool _isLoading = false;
   String? _errorMessage;
+  NotificationProvider? _notificationProvider;
 
   List<Schedule> get schedules => _schedules;
   List<Booking> get bookings => _bookings;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  BookingProvider() {
+  BookingProvider({NotificationProvider? notificationProvider}) {
+    _notificationProvider = notificationProvider;
     loadData();
   }
 
@@ -213,6 +216,12 @@ class BookingProvider extends ChangeNotifier {
       );
       await FirebaseService.updateSchedule(updatedSchedule);
 
+      // Create booking confirmation notification
+      _notificationProvider?.addBookingConfirmationNotification(
+        schedule.title,
+        booking.id,
+      );
+
       _isLoading = false;
       notifyListeners();
       return true;
@@ -240,6 +249,12 @@ class BookingProvider extends ChangeNotifier {
         currentParticipants: schedule.currentParticipants - 1,
       );
       await FirebaseService.updateSchedule(updatedSchedule);
+
+      // Create booking cancellation notification
+      _notificationProvider?.addBookingCancellationNotification(
+        schedule.title,
+        bookingId,
+      );
 
       _isLoading = false;
       notifyListeners();

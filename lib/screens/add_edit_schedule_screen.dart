@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../models/schedule.dart';
 import '../providers/booking_provider.dart';
+import 'map_location_picker_screen.dart';
 
 class AddEditScheduleScreen extends StatefulWidget {
   final Schedule? schedule;
@@ -24,6 +25,8 @@ class _AddEditScheduleScreenState extends State<AddEditScheduleScreen> {
   TimeOfDay _startTime = const TimeOfDay(hour: 9, minute: 0);
   TimeOfDay _endTime = const TimeOfDay(hour: 10, minute: 0);
   bool _isActive = true;
+  double? _selectedLatitude;
+  double? _selectedLongitude;
 
   @override
   void initState() {
@@ -37,6 +40,8 @@ class _AddEditScheduleScreenState extends State<AddEditScheduleScreen> {
       _startTime = widget.schedule!.startTime;
       _endTime = widget.schedule!.endTime;
       _isActive = widget.schedule!.isActive;
+      _selectedLatitude = widget.schedule!.latitude;
+      _selectedLongitude = widget.schedule!.longitude;
     }
   }
 
@@ -118,6 +123,42 @@ class _AddEditScheduleScreenState extends State<AddEditScheduleScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 8),
+              
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: _openMapPicker,
+                      icon: const Icon(Icons.map),
+                      label: const Text('Select on Map'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  if (_selectedLatitude != null && _selectedLongitude != null)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: IconButton(
+                        onPressed: _clearLocation,
+                        icon: const Icon(Icons.clear, color: Colors.red),
+                        tooltip: 'Clear location',
+                      ),
+                    ),
+                ],
+              ),
+              if (_selectedLatitude != null && _selectedLongitude != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    'Selected: ${_selectedLatitude!.toStringAsFixed(6)}, ${_selectedLongitude!.toStringAsFixed(6)}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ),
               const SizedBox(height: 16),
               
               TextFormField(
@@ -308,6 +349,8 @@ class _AddEditScheduleScreenState extends State<AddEditScheduleScreen> {
       maxParticipants: int.parse(_maxParticipantsController.text),
       currentParticipants: widget.schedule?.currentParticipants ?? 0,
       location: _locationController.text.trim(),
+      latitude: _selectedLatitude,
+      longitude: _selectedLongitude,
       createdBy: 'admin_1',
       isActive: _isActive,
       createdAt: widget.schedule?.createdAt ?? DateTime.now(),
@@ -367,5 +410,31 @@ class _AddEditScheduleScreenState extends State<AddEditScheduleScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _openMapPicker() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapLocationPickerScreen(
+          initialLatitude: _selectedLatitude,
+          initialLongitude: _selectedLongitude,
+        ),
+      ),
+    );
+
+    if (result != null && result is Map<String, double>) {
+      setState(() {
+        _selectedLatitude = result['latitude'];
+        _selectedLongitude = result['longitude'];
+      });
+    }
+  }
+
+  void _clearLocation() {
+    setState(() {
+      _selectedLatitude = null;
+      _selectedLongitude = null;
+    });
   }
 }

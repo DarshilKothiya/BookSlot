@@ -10,6 +10,8 @@ class Schedule {
   final int maxParticipants;
   final int currentParticipants;
   final String location;
+  final double? latitude;
+  final double? longitude;
   final String createdBy;
   final bool isActive;
   final DateTime createdAt;
@@ -24,6 +26,8 @@ class Schedule {
     required this.maxParticipants,
     this.currentParticipants = 0,
     required this.location,
+    this.latitude,
+    this.longitude,
     required this.createdBy,
     this.isActive = true,
     DateTime? createdAt,
@@ -42,6 +46,8 @@ class Schedule {
       'maxParticipants': maxParticipants,
       'currentParticipants': currentParticipants,
       'location': location,
+      'latitude': latitude,
+      'longitude': longitude,
       'createdBy': createdBy,
       'isActive': isActive,
       'createdAt': createdAt.toIso8601String(),
@@ -65,6 +71,8 @@ class Schedule {
       maxParticipants: json['maxParticipants'],
       currentParticipants: json['currentParticipants'] ?? 0,
       location: json['location'],
+      latitude: json['latitude'],
+      longitude: json['longitude'],
       createdBy: json['createdBy'],
       isActive: json['isActive'] ?? true,
       createdAt: DateTime.parse(json['createdAt']),
@@ -81,6 +89,8 @@ class Schedule {
     int? maxParticipants,
     int? currentParticipants,
     String? location,
+    double? latitude,
+    double? longitude,
     String? createdBy,
     bool? isActive,
     DateTime? createdAt,
@@ -95,6 +105,8 @@ class Schedule {
       maxParticipants: maxParticipants ?? this.maxParticipants,
       currentParticipants: currentParticipants ?? this.currentParticipants,
       location: location ?? this.location,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
       createdBy: createdBy ?? this.createdBy,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
